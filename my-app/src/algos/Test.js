@@ -6,18 +6,31 @@ class Test {
         this.canvasRef = canvasRef;
         
         const defaultParameters = {
-            size: 100,
+            size: 10,
             hsv: [100, 100, 100],
-            borderSize: 10
-        }
+            borderSize: 2
+        };
         
         this.setParameters(defaultParameters);
     }
 
+    
+
     setParameters({size, hsv, borderSize}) { 
+
+        // console.log("Setting parameters", size, hsv , borderSize);
+
         this.size = size;
         this.hsv = hsv;
         this.borderSize = borderSize;
+    }
+
+    getParameters() { 
+        return {
+            size: this.size,
+            hsv: this.hsv,
+            borderSize: this.borderSize
+        }
     }
 
     drawSquare() { 
@@ -27,8 +40,11 @@ class Test {
         const x = Math.random() * (canvas.width - this.size);
         const y = Math.random() * (canvas.height - this.size);
 
+
+        const rectBorderSize = (this.size) + (2 * this.borderSize);
+
         ctx.fillStyle = "black";
-        ctx.fillRect(x - this.borderSize, y - this.borderSize, this.size + 2 * this.borderSize, this.size + 2 * this.borderSize);
+        ctx.fillRect(x - this.borderSize, y - this.borderSize, rectBorderSize, rectBorderSize);
 
         ctx.fillStyle = hsvToRgbString(...this.hsv);
         ctx.fillRect(x, y, this.size, this.size);

@@ -1,18 +1,20 @@
 import { useRef, useEffect, useState } from 'react'
 import Test from './algos/Test';
+import TestMenu from './menus/TestMenu';
 
 function Menu() { 
 
     const canvasRef = useRef(null);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [menuOption, setMenuOption] = useState(null);
     const algoRef = useRef(null);
 
     const [mode, setMode] = useState("test");
 
 
-
-
+    const [parameters, setParameters] = useState({});
+    
 
 
     // set up mode
@@ -20,6 +22,9 @@ function Menu() {
         if (mode == "test") { 
             const test = new Test({canvasRef});
             algoRef.current = test;
+            
+            const defaultParameters = algoRef.current.getParameters();
+            setParameters(defaultParameters);
         }
     }, [mode]);
 
@@ -66,10 +71,16 @@ function Menu() {
     useEffect(() => { 
         function handleKeyDown(event) { 
             if (event.key == "Escape") { 
-                setIsMenuOpen(prev => !prev);
+                if (menuOption) { 
+                    setMenuOption(null);
+                }
+                else {
+                    setIsMenuOpen(prev => !prev);
+                }
+                
             }
             else if (event.key == "t" && algoRef.current) { 
-                algoRef.current.draw();
+                runAlgo();
             }
             else if (event.key == "Backspace") { 
                 resetBackground();
@@ -95,6 +106,11 @@ function Menu() {
     
 
 
+    function runAlgo() { 
+        if (algoRef.current) { 
+            algoRef.current.draw();
+        }
+    }
 
     function resetBackground() { 
         const canvas = canvasRef.current;
@@ -102,14 +118,43 @@ function Menu() {
         ctx.fillStyle = "tan";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
+
+
     
+
+    function saveCanvas() { 
+
+        const canvas = canvasRef.current;
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+
+    
+        link.href = image;
+        const unixTime = Math.floor(Date.now() / 1000);
+        link.download = `canvas-${unixTime}`;
+        link.click();
+    }
+
+
+
+    function testSetParameters() {
+        const params  = {
+            size: 20,
+            hsv: [300, 100, 100],
+            borderSize: 4
+        }
+        setParameters(params);
+        if (algoRef.current) { 
+            algoRef.current.setParameters(parameters);
+        }
+    }
 
     return (
         <>
 
             <canvas id={"canvas"} ref={canvasRef}></canvas>
 
-            {isMenuOpen && (
+            {isMenuOpen && !menuOption && (
                 <div
                     style={{
                         position: "absolute",
@@ -126,11 +171,20 @@ function Menu() {
                         filter: "none"
                     }}
                 >
-                    <button>Option 1</button>
-                    <button>Option 2</button>
+                    <button onClick={() => {setMenuOption("edit")}}>Edit Settings</button>
+                    <button onClick={saveCanvas}>Save Canvas</button>
+                    <button>Back</button>
+                    <button>Help</button>
+                    <button onClick={testSetParameters}>Test</button>
                 </div>
-            )}
 
+            )}
+            {menuOption == "edit" && parameters && (
+                <>
+                    <TestMenu parameters={parameters} setParameters={setParameters} algoRef={algoRef}/>
+                </>
+                
+            )}
 
         </>
     )
