@@ -10,7 +10,7 @@ function Menu() {
     const [menuOption, setMenuOption] = useState(null);
     const algoRef = useRef(null);
 
-    const [mode, setMode] = useState("test");
+    const [mode, setMode] = useState("test"); // algo type
 
 
     const [parameters, setParameters] = useState({});
@@ -115,7 +115,7 @@ function Menu() {
     function resetBackground() { 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "tan";
+        ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 

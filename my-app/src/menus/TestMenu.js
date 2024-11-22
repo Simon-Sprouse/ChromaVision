@@ -5,6 +5,8 @@ function TestMenu({ parameters, setParameters, algoRef }) {
 
     const localParameters = {...parameters};
 
+    // console.log("localParameters.gradient: ", localParameters.gradient);
+
     const [inGradientUI, setInGradientUI] = useState(false);
 
 
@@ -101,7 +103,7 @@ function TestMenu({ parameters, setParameters, algoRef }) {
                     filter: "none"
                 }}
             >
-                <GradientUI width={400} defaultHsv={defaultHsv} onUpdate={handleChangeFromGradientUI}/>
+                <GradientUI width={400} defaultGradient={localParameters.gradient} defaultHsv={defaultHsv} onUpdate={handleChangeFromGradientUI}/>
             </div>
         )}
         </>
