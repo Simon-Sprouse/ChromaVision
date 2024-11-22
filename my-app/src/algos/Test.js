@@ -1,4 +1,4 @@
-import { hsvObjectToRgbString, hsvToRgbString } from "../functions/colorFunctions";
+import { hsvObjectToRgbString, hsvToRgbString, getColorFromGradient } from "../functions/colorFunctions";
 import { useRef } from 'react';
 
 class Test { 
@@ -8,7 +8,13 @@ class Test {
         const defaultParameters = {
             size: 10,
             hsv: [100, 100, 100],
-            borderSize: 2
+            borderSize: 2,
+            gradient: [
+                {color: {h: 0, s: 100, v: 100}, position: 0},
+                {color: {h: 70, s: 100, v: 100}, position: 100},
+            ],
+            gradientLocation: 0,
+            gradientStep: 1
         };
         
         this.setParameters(defaultParameters);
@@ -16,20 +22,47 @@ class Test {
 
     
 
-    setParameters({size, hsv, borderSize}) { 
+    setParameters({size, hsv, borderSize, gradient, gradientLocation, gradientStep}) { 
 
-        // console.log("Setting parameters", size, hsv , borderSize);
+        // console.log("Setting parameters", gradient);
 
         this.size = size;
         this.hsv = hsv;
         this.borderSize = borderSize;
+        this.gradient = gradient;
+        this.gradientLocation = gradientLocation;
+        this.gradientStep = gradientStep;
+        this.gradientArray = this.storeGradientSteps(100);
+
+
     }
+
+    storeGradientSteps(numberOfSteps) { 
+
+
+
+       
+
+
+        const gradientArray = [];
+        for (let i = 0; i < numberOfSteps; i ++) { 
+            const distance = i * (100 / numberOfSteps);
+            const colorString = getColorFromGradient(this.gradient, distance);
+            gradientArray.push(colorString);
+        }
+
+        return gradientArray;
+    }
+
 
     getParameters() { 
         return {
             size: this.size,
             hsv: this.hsv,
-            borderSize: this.borderSize
+            borderSize: this.borderSize,
+            gradient: this.gradient,
+            gradientLocation: this.gradientLocation,
+            gradientStep: this.gradientStep
         }
     }
 
@@ -43,10 +76,24 @@ class Test {
 
         const rectBorderSize = (this.size) + (2 * this.borderSize);
 
+
+
+        const index = Math.floor(this.gradientLocation % 100);
+        const color = this.gradientArray[index];
+        this.gradientLocation += this.gradientStep;
+
+
+
+
+
+
+
         ctx.fillStyle = "black";
         ctx.fillRect(x - this.borderSize, y - this.borderSize, rectBorderSize, rectBorderSize);
 
-        ctx.fillStyle = hsvToRgbString(...this.hsv);
+
+
+        ctx.fillStyle = color;
         ctx.fillRect(x, y, this.size, this.size);
 
     }

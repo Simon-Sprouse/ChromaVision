@@ -79,7 +79,69 @@ function hsvToRgbString(h, s, v) {
 }
 
 function hsvObjectToRgbString(hsv) { 
-    return hsvToRgbString(hsv.h, hsv.s, hsv.v)
+    return hsvToRgbString(hsv.h, hsv.s, hsv.v);
 }
 
-export { hsvToHex, rgbToHsv, hsvToRgb, hsvToRgbString, hsvObjectToRgbString };
+
+
+
+function getColorFromGradient(stops, position) { 
+
+
+
+    if (stops.length == 1) { 
+        return stops[0].color;
+    }
+
+    let lowerStop = null;
+    let upperStop = null;
+
+    for (let i = 0; i < stops.length - 1; i++) { 
+        if (position >= stops[i].position && position <= stops[i + 1].position) { 
+            lowerStop = stops[i];
+            upperStop = stops[i + 1];
+        }
+    }
+
+    if (!lowerStop || !upperStop) { 
+        if (position <= stops[0].position) { 
+            return stops[0].color;
+        }
+        else { 
+            return stops[stops.length - 1].color;
+        }
+    }
+
+
+
+    const { position: pos1, color: color1 } = lowerStop;
+    const { position: pos2, color: color2 } = upperStop;
+
+    const t = (position - pos1) / (pos2 - pos1); // y = mt + b
+
+    const d = (color2.h - color1.h); // we can go in two directions
+    let dReverse = 360 - (Math.abs(d)); // to represent distance in opposite direciton
+
+    let dReverseSlope = d > 0 ? -1 * dReverse : dReverse;
+
+    let hueSlope = (Math.abs(d) < Math.abs(dReverse)) ? d : dReverseSlope;
+
+
+
+
+    const h = (((color1.h + t * hueSlope) % 360) + 360) % 360; // interpolate
+    const s = color1.s + t * (color2.s - color1.s);
+    const v = color1.v + t * (color2.v - color1.v);
+
+
+    if (h > 360 || h < 0) { 
+        console.log("HHHHHHHHH", h);
+        
+    }
+
+ 
+    return hsvToRgbString(h, s, v);
+}
+
+
+export { hsvToHex, rgbToHsv, hsvToRgb, hsvToRgbString, hsvObjectToRgbString, getColorFromGradient };

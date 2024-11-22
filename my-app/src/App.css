@@ -25,3 +25,25 @@ body {
 button { 
     font-size: 30px;
 }
+
+
+.menuRow { 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+}
+
+.menuRow * { 
+    margin: 0px 20px;
+    font-size: 20px;
+}
+
+.menuRow p {
+    width: 100%;
+    text-align: left;
+}
+
+.gradientUI * { 
+    background-color: wheat;
+}
