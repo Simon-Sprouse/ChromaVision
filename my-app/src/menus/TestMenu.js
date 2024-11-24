@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import GradientUI from '../functions/GradientUI';
 
-function TestMenu({ parameters, setParameters, algoRef }) { 
+function TestMenu({ menuOption, setMenuOption, parameters, setParameters, algoRef }) { 
+
+   
 
     const localParameters = {...parameters};
 
-    // console.log("localParameters.gradient: ", localParameters.gradient);
-
-    const [inGradientUI, setInGradientUI] = useState(false);
 
 
-    const defaultHsv = {h: 120, s:90, v:80}; // TODO set this based on the existing values
+ 
+    
 
     function sizeChange(event) {
         localParameters.size = parseInt(event.target.value);
@@ -41,9 +41,6 @@ function TestMenu({ parameters, setParameters, algoRef }) {
         setParameters(localParameters);
     }
 
-    function handleGradientUI() { 
-        setInGradientUI(true);
-    }
 
 
 
@@ -55,7 +52,9 @@ function TestMenu({ parameters, setParameters, algoRef }) {
 
     return (
         <>
-        {!inGradientUI && (
+        
+
+        {(menuOption == "edit") && (
             <div
                 style={{
                     position: "absolute",
@@ -83,10 +82,10 @@ function TestMenu({ parameters, setParameters, algoRef }) {
                     <input type="range" min="2" max="200" defaultValue={parameters.borderSize} onChange={borderSizeChange}/>
 
                 </span>
-                <button onClick={handleGradientUI}>Select Gradient</button>
+                <button onClick={() => {setMenuOption("gradient")}}>Select Gradient</button>
             </div>
         )}
-        {inGradientUI && (
+        {(menuOption == "gradient") && (
             <div
                 style={{
                     position: "absolute",
@@ -103,7 +102,7 @@ function TestMenu({ parameters, setParameters, algoRef }) {
                     filter: "none"
                 }}
             >
-                <GradientUI width={400} defaultGradient={localParameters.gradient} defaultHsv={defaultHsv} onUpdate={handleChangeFromGradientUI}/>
+                <GradientUI width={400} defaultGradient={localParameters.gradient} onUpdate={handleChangeFromGradientUI}/>
             </div>
         )}
         </>

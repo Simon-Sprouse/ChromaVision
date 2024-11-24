@@ -4,10 +4,9 @@ import ColorWheel from './ColorWheel';
 import GradientBar from './GradientBar';
 import DisplayBar from './DisplayBar';
 
-function GradientUI({ width, defaultGradient, defaultHsv, onUpdate }) { 
-    // const width = 600;
+function GradientUI({ width, defaultGradient, onUpdate }) { 
 
-    // const defaultHsv = {h: 120, s:90, v:80};
+    const defaultHsv = {h: 120, s:90, v:80}; // only used for adding new colorWheel
 
 
     const presetHSV = [];
@@ -15,17 +14,16 @@ function GradientUI({ width, defaultGradient, defaultHsv, onUpdate }) {
     defaultGradient.forEach((stop, index) => { 
         presetHSV.push(stop.color);
         presetPositions.push(stop.position / 100);
-        // console.log("stop: ", stop);
+
     })
-    console.log("presetPositions: ", presetPositions);
-
+    
     const [hsvValues, setHsvValues] = useState(presetHSV);
-
     const [positions, setPositions] = useState(presetPositions);
+
 
     const [counter, setCounter] = useState(0);
 
-    const [style, setStyle] = useState(0);
+    const [style, setStyle] = useState(0);          // 0: gradient or 1: step
     const [numPanels, setNumPanels] = useState(5);
 
    
@@ -100,11 +98,8 @@ function GradientUI({ width, defaultGradient, defaultHsv, onUpdate }) {
     }
 
 
-    // useEffect(() => { 
 
-    //     updateForParentComponent();
-    // }, [hsvValues, positions]);
-    
+    // when apply button is pressed
     function updateForParentComponent() { 
         const gradient = []
         positions.forEach((pos, index) => {
@@ -114,7 +109,6 @@ function GradientUI({ width, defaultGradient, defaultHsv, onUpdate }) {
             }
             gradient.push(stop);
         })
-        // console.log(gradient);
         onUpdate(gradient);
     }
     
@@ -122,11 +116,15 @@ function GradientUI({ width, defaultGradient, defaultHsv, onUpdate }) {
         <div className="App">
         <header className="App-header">
             <span>
-                <button onClick={psuedoRandomizeColors}>Randomize Colors</button>
+                <button onClick={randomizeColors}>Randomize Colors</button>
                 <button onClick={() => setStyle(prevStyle => prevStyle == 1 ? 0 : 1)}>{style == 1 ? "Gradient" : "Step"}</button>
                 {style == 1 && (
                     <input className="rangeBar" type="range" min="1" max="20" value={numPanels} onChange={(e) => setNumPanels(e.target.value)}/>
                 )}
+            </span>
+            <span>
+                <button onClick={addColorWheel}>Add Color</button>
+                <button onClick={removeColorWheel}>Remove Color</button>
             </span>
             <DisplayBar width={width} hsvValues={hsvValues} positions={positions} style={style} numPanels={numPanels}/>
             <p></p>
@@ -139,10 +137,7 @@ function GradientUI({ width, defaultGradient, defaultHsv, onUpdate }) {
                     counter={counter}
                     updateHsv={newHsv => updateHsvValue(index, newHsv)}/>
             ))}
-            <span>
-                <button onClick={addColorWheel}>Add Color</button>
-                <button onClick={removeColorWheel}>Remove Color</button>
-            </span>
+            
             <button onClick={updateForParentComponent}>Apply Gradient</button>
 
             {/* <pre style={{textAlign: "left"}}>

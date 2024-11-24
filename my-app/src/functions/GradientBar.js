@@ -6,33 +6,32 @@ function GradientBar({width, hsvValues, positions, setPositions}) {
 
     const canvasRef = useRef(null);
     const barHeight = width / 16;
-    // const width = 800;
-
     const dotSize = Math.floor(width / 36);
     const border = 3;
 
-    const [isDragging, setIsDragging] = useState(false);
-    const [dots, setDots] = useState([]);
+    const [isDragging, setIsDragging] = useState(false); // for tracking if any dot is being dragged
+    const [dots, setDots] = useState([]);                // {x: 0, y:0, isDragging:false};
 
 
-    const initialRender = useRef(true);
+   
+
+    // initialize dots
     const initialNumberOfDots = useRef(hsvValues.length);
-
-
-    // initialize dots to store one dot for each color wheel
     useEffect(() => { 
 
+        /*
+            if the number of dots hasn't changed, we are probably in the initial run of this useEffect
+            if it is the same, we want to load in the x values from the positions passed in as prop (old settings)
+            if the number of dots increases / decreases, we set them as far apart as possible
+        */
         if (initialNumberOfDots.current == hsvValues.length) { 
             
-
             const initialDots = [];
             positions.forEach(position => { 
                 const dotObject = {x: (position) * width, y:0, isDragging:false};
                 initialDots.push(dotObject);
             });
             setDots(initialDots);
-
-
 
         }
         else { 
@@ -52,6 +51,7 @@ function GradientBar({width, hsvValues, positions, setPositions}) {
     }, [hsvValues.length]); 
 
 
+    // render loop
     useEffect(() => { 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");

@@ -6,13 +6,15 @@ function Menu() {
 
     const canvasRef = useRef(null);
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [menuOption, setMenuOption] = useState(null);
+
+    const [menuOption, setMenuOption] = useState("canvas");
+   
+
+
+
+
     const algoRef = useRef(null);
-
     const [mode, setMode] = useState("test"); // algo type
-
-
     const [parameters, setParameters] = useState({});
     
 
@@ -71,11 +73,42 @@ function Menu() {
     useEffect(() => { 
         function handleKeyDown(event) { 
             if (event.key == "Escape") { 
-                if (menuOption) { 
-                    setMenuOption(null);
+                /*
+                So I suspect that this component has an event listener that is persisting. 
+                If this is true, I can represent any menu state in the parent, passing a state and statemodifer down to chilren
+                I will now test to see what control I can get in the parent component
+                */
+
+
+                /*
+                The escape key moves you backward in the menu stack. 
+                edit -> main -> canvas
+                or as seen in this if statement: 
+
+                if canvas:          // the only time the escape key takes you forward in the menu stack
+                    go to main
+                if main
+                    go to canvas
+                if edit: 
+                    go to main
+
+
+
+                if gradient:
+                    go to edit
+                */
+
+                if (menuOption == "canvas") { 
+                    setMenuOption("main");
                 }
-                else {
-                    setIsMenuOpen(prev => !prev);
+                else if (menuOption == "main") {
+                    setMenuOption("canvas");
+                }
+                else if (menuOption == "edit") { 
+                    setMenuOption("main");
+                }
+                else if (menuOption == "gradient") {
+                    setMenuOption("edit");
                 }
                 
             }
@@ -95,13 +128,15 @@ function Menu() {
 
     // handle menu blur
     useEffect(() => { 
-        if (isMenuOpen) { 
+       
+
+        if (menuOption != "canvas") { 
             document.getElementById("canvas").style.filter = "blur(10px)";
         }
         else { 
             document.getElementById("canvas").style.filter = "none";
         }
-    }, [isMenuOpen]);
+    }, [menuOption]);
 
     
 
@@ -118,6 +153,7 @@ function Menu() {
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
+
 
 
     
@@ -154,7 +190,7 @@ function Menu() {
 
             <canvas id={"canvas"} ref={canvasRef}></canvas>
 
-            {isMenuOpen && !menuOption && (
+            {menuOption == "main" && (
                 <div
                     style={{
                         position: "absolute",
@@ -179,9 +215,14 @@ function Menu() {
                 </div>
 
             )}
-            {menuOption == "edit" && parameters && (
+            {menuOption != "canvas" && menuOption != "main" && parameters && (
                 <>
-                    <TestMenu parameters={parameters} setParameters={setParameters} algoRef={algoRef}/>
+                    <TestMenu 
+                        menuOption={menuOption} 
+                        setMenuOption={setMenuOption} 
+                        parameters={parameters} 
+                        setParameters={setParameters} 
+                        algoRef={algoRef}/>
                 </>
                 
             )}
