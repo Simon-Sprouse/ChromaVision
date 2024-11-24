@@ -96,6 +96,22 @@ function Menu() {
 
                 if gradient:
                     go to edit
+
+
+
+
+
+
+                canvas -> main
+                main -> canvas
+
+
+                main -> edit
+
+
+                edit -> color, shape, movement
+
+                color -> gradient
                 */
 
                 if (menuOption == "canvas") { 
@@ -107,8 +123,29 @@ function Menu() {
                 else if (menuOption == "edit") { 
                     setMenuOption("main");
                 }
-                else if (menuOption == "gradient") {
+                else if (menuOption == "color") {
                     setMenuOption("edit");
+                }
+                else if (menuOption == "shape") {
+                    setMenuOption("edit");
+                }
+                else if (menuOption == "movement") {
+                    setMenuOption("edit");
+                }
+                else if (menuOption == "gradient") {
+                    setMenuOption("color");
+                }
+                
+
+
+
+
+
+
+
+                else { 
+                    // handle error in menuOption state
+                    setMenuOption("canvas");
                 }
                 
             }
@@ -191,22 +228,8 @@ function Menu() {
             <canvas id={"canvas"} ref={canvasRef}></canvas>
 
             {menuOption == "main" && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        background: "rgba(255, 255, 255, 0.8)",
-                        padding: "20px",
-                        borderRadius: "10px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "10px",
-                        zIndex: "1000",
-                        filter: "none"
-                    }}
-                >
+                <div className={"menuDiv"}>
+                    <p>Main</p>
                     <button onClick={() => {setMenuOption("edit")}}>Edit Settings</button>
                     <button onClick={saveCanvas}>Save Canvas</button>
                     <button>Back</button>
@@ -233,3 +256,41 @@ function Menu() {
 
 
 export default Menu;
+
+
+
+
+
+
+
+/*
+
+Ok so here's a basic sketch of what the menu needs to look like: 
+
+canvas
+
+- main
+    - edit
+        - color
+            - background color
+            - border color
+            - snake color
+        - shape (maybe form is a better name? )
+            - shape
+            - size
+            - borderSize (make this a ratio?)
+            - tilt
+        - movement
+            - animation speed
+            - walking pattern
+    - save
+    - back
+    - help
+    - test (maybe randomize)
+
+
+
+
+
+
+*/

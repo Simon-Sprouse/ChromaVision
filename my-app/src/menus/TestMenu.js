@@ -55,56 +55,55 @@ function TestMenu({ menuOption, setMenuOption, parameters, setParameters, algoRe
         
 
         {(menuOption == "edit") && (
-            <div
-                style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    background: "rgba(255, 255, 255, 0.8)",
-                    padding: "20px",
-                    borderRadius: "10px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    zIndex: "1000",
-                    filter: "none"
-                }}
-            >
+            <div className={"menuDiv"}>
+                <p>Edit</p>
+                <button onClick={() => {setMenuOption("color")}}>Color</button>
+                <button onClick={() => {setMenuOption("shape")}}>Shape</button>
+                <button onClick={() => {setMenuOption("movement")}}>Movement</button>
+            </div>
+        )}
+
+
+        {(menuOption == "color") && (
+            <div className={"menuDiv"}>
+                <p>Color</p>
+                <button onClick={() => {setMenuOption("gradient")}}>Set Gradient</button>
+            </div>
+        )}
+       
+        {(menuOption == "shape") && (
+            <div className={"menuDiv"}>
+                <p>Shape</p>
                 <span className="menuRow">
                     <p>Size</p>
                     <input type="range" min="2" max="200" defaultValue={parameters.size} onChange={sizeChange}/>
-                    {/* <button id="sizeMod" onClick={sizeModulation}>Fixed</button>
-                    <input type="range" min="1" max="100" defaultValue={100} /> */}
                 </span>
                 <span className="menuRow">
                     <p>Border Size</p>
                     <input type="range" min="2" max="200" defaultValue={parameters.borderSize} onChange={borderSizeChange}/>
-
                 </span>
-                <button onClick={() => {setMenuOption("gradient")}}>Select Gradient</button>
+                
             </div>
         )}
+
+        {(menuOption == "movement") && (
+            <div className={"menuDiv"}>
+                <p>Movement</p>
+            </div>
+        )}
+        
+
+
         {(menuOption == "gradient") && (
-            <div
-                style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    background: "rgba(255, 255, 255, 0.8)",
-                    padding: "20px",
-                    borderRadius: "10px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    zIndex: "1000",
-                    filter: "none"
-                }}
-            >
+            <div className={"menuDiv"}>
+                <p>Gradient</p>
                 <GradientUI width={400} defaultGradient={localParameters.gradient} onUpdate={handleChangeFromGradientUI}/>
             </div>
         )}
+
+
+
+       
         </>
     )
 }
