@@ -286,11 +286,23 @@ canvas
     - save
     - back
     - help
+        (basically a guide to the key bindings)
     - test (maybe randomize)
 
 
 
 
+Also I need a solo color wheel component.
 
+And I need to figure out how to manage static / dynamic
+
+For instance - main color: 
+    - isStatic 
+        - solo color wheel
+    - isDynamic
+        - gradientUI
+        - loop style (bouncing, randomWalk, looping)
+        - add noise / shuffle gradient array (sorted, semi sorted)
+        - speed of bounce
 
 */

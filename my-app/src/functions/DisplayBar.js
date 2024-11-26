@@ -2,10 +2,10 @@ import { useRef, useEffect, useState } from 'react';
 
 import { hsvObjectToRgbString } from './colorFunctions';
 
-function DisplayBar({width, hsvValues, positions, style, numPanels}) { 
+function DisplayBar({width, height, hsvValues, positions, style, numPanels}) { 
 
     // const width = 800;
-    const height = width / 4;
+
 
 
     const canvasRef = useRef(null);

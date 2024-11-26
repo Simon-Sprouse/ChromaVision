@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
 import GradientUI from '../functions/GradientUI';
+import ColorWheel from '../functions/ColorWheel';
+import DisplayBar from '../functions/DisplayBar';
 
 function TestMenu({ menuOption, setMenuOption, parameters, setParameters, algoRef }) { 
 
-   
+   const [foregroundStatic, setForegroundStatic] = useState(false);
+
 
     const localParameters = {...parameters};
 
 
-
+    function applyLocalParameters() { 
+        algoRef.current.setParameters(localParameters);
+        setParameters(localParameters);
+    }
  
     
 
@@ -17,37 +23,47 @@ function TestMenu({ menuOption, setMenuOption, parameters, setParameters, algoRe
         applyLocalParameters();
     }   
 
-    function sizeModulation(event) { 
-
-        const button = document.getElementById("sizeMod");
-        if (event.target.innerText === "Fixed") { 
-            button.innerText = "Loop";
-        }
-        else if (event.target.innerText === "Loop") { 
-            button.innerText = "Bounce";
-        }
-        else if (event.target.innerText === "Bounce") { 
-            button.innerText = "Fixed";
-        }
-    }
 
     function borderSizeChange(event) {
         localParameters.borderSize = parseInt(event.target.value);
         applyLocalParameters();
     }
 
-    function applyLocalParameters() { 
-        algoRef.current.setParameters(localParameters);
-        setParameters(localParameters);
+
+
+
+
+
+
+
+
+
+
+    function toggleForeground(event) { 
+        // TODO make this a slider instead
+        if (localParameters.foregroundStatic) { 
+            event.target.innerText = "Set Static"; // opposite
+            localParameters.foregroundStatic = false;
+            applyLocalParameters();
+        } 
+        else { 
+            event.target.innerText = "Set Gradient"; // opposite
+            localParameters.foregroundStatic = true;
+            applyLocalParameters();
+        }
+    }
+
+    // called from inside color wheel
+    function handleForegroundStaticColorChange(hsv) { 
+        localParameters.foregroundColor = hsv;
+        applyLocalParameters();
     }
 
 
-
-
+    // called from inside gradient UI
     function handleChangeFromGradientUI(gradient) { 
         localParameters.gradient = gradient;
-        algoRef.current.setParameters(localParameters);
-        setParameters(localParameters);
+        applyLocalParameters();
     }
 
     return (
@@ -67,7 +83,36 @@ function TestMenu({ menuOption, setMenuOption, parameters, setParameters, algoRe
         {(menuOption == "color") && (
             <div className={"menuDiv"}>
                 <p>Color</p>
-                <button onClick={() => {setMenuOption("gradient")}}>Set Gradient</button>
+                
+                <button onClick={toggleForeground}>Set Static</button>
+                {localParameters.foregroundStatic && (
+                    <div>
+                        <p>Fleeb</p>
+                        
+                        <ColorWheel 
+                            width={400}
+                            hsv={localParameters.foregroundColor}
+                            counter={0}
+                            updateHsv={handleForegroundStaticColorChange}
+                        />
+                        
+
+                    </div>
+                )}
+                {!localParameters.foregroundStatic && (
+                    <div>
+                        <DisplayBar 
+                            width={200}
+                            height={20} 
+                            hsvValues={localParameters.gradient.map(colorStop => colorStop.color)}
+                            positions={localParameters.gradient.map(colorStop => colorStop.position / 100)}
+                            style={0}
+                            numPanels={7}
+                        />
+                        <button onClick={() => {setMenuOption("gradient")}}>Open Gradient Editor</button>
+                    </div>
+                )}
+                
             </div>
         )}
        

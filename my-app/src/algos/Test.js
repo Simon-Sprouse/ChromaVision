@@ -9,6 +9,8 @@ class Test {
             size: 10,
             hsv: [100, 100, 100],
             borderSize: 2,
+            foregroundStatic: false,
+            foregroundColor:  {h: 0, s: 100, v: 100},
             gradient: [
                 {color: {h: 0, s: 100, v: 100}, position: 0},
                 {color: {h: 70, s: 100, v: 100}, position: 100},
@@ -22,13 +24,15 @@ class Test {
 
     
 
-    setParameters({size, hsv, borderSize, gradient, gradientLocation, gradientStep}) { 
+    setParameters({size, hsv, borderSize, foregroundStatic, foregroundColor, gradient, gradientLocation, gradientStep}) { 
 
         // console.log("Setting parameters", gradient);
 
         this.size = size;
         this.hsv = hsv;
         this.borderSize = borderSize;
+        this.foregroundStatic = foregroundStatic;
+        this.foregroundColor = foregroundColor;
         this.gradient = gradient;
         this.gradientLocation = gradientLocation;
         this.gradientStep = gradientStep;
@@ -60,6 +64,8 @@ class Test {
             size: this.size,
             hsv: this.hsv,
             borderSize: this.borderSize,
+            foregroundStatic: this.foregroundStatic,
+            foregroundColor: this.foregroundColor,
             gradient: this.gradient,
             gradientLocation: this.gradientLocation,
             gradientStep: this.gradientStep
@@ -77,11 +83,7 @@ class Test {
         const rectBorderSize = (this.size) + (2 * this.borderSize);
 
 
-
-        const index = Math.floor(this.gradientLocation % 100);
-        const color = this.gradientArray[index];
-        this.gradientLocation += this.gradientStep;
-
+        
 
 
 
@@ -92,8 +94,17 @@ class Test {
         ctx.fillRect(x - this.borderSize, y - this.borderSize, rectBorderSize, rectBorderSize);
 
 
+        if (this.foregroundStatic) { 
+            ctx.fillStyle = hsvObjectToRgbString(this.foregroundColor);
+        }
+        else{
+            const index = Math.floor(this.gradientLocation % 100);
+            const color = this.gradientArray[index];
+            this.gradientLocation += this.gradientStep;
+            ctx.fillStyle = color;
+        }
 
-        ctx.fillStyle = color;
+        
         ctx.fillRect(x, y, this.size, this.size);
 
     }

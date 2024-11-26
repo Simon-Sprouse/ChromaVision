@@ -126,7 +126,7 @@ function GradientUI({ width, defaultGradient, onUpdate }) {
                 <button onClick={addColorWheel}>Add Color</button>
                 <button onClick={removeColorWheel}>Remove Color</button>
             </span>
-            <DisplayBar width={width} hsvValues={hsvValues} positions={positions} style={style} numPanels={numPanels}/>
+            <DisplayBar width={width} height={width / 4} hsvValues={hsvValues} positions={positions} style={style} numPanels={numPanels}/>
             <p></p>
             <GradientBar width={width} hsvValues={hsvValues} positions={positions} setPositions={setPositions}/>
             {hsvValues.map((hsv, index) => (
