@@ -4,6 +4,7 @@ import { useRef } from 'react';
 class Test { 
     constructor({canvasRef}) { 
         this.canvasRef = canvasRef;
+        this.gradientArraySize = 100;
         
         const defaultParameters = {
             size: 10,
@@ -16,7 +17,9 @@ class Test {
                 {color: {h: 70, s: 100, v: 100}, position: 100},
             ],
             gradientLocation: 0,
-            gradientStep: 1
+            gradientStep: 1,
+            gradientCycle: "loop",
+            gradientDirection: "forward",
         };
         
         this.setParameters(defaultParameters);
@@ -24,9 +27,9 @@ class Test {
 
     
 
-    setParameters({size, hsv, borderSize, foregroundStatic, foregroundColor, gradient, gradientLocation, gradientStep}) { 
-
-        // console.log("Setting parameters", gradient);
+    setParameters({size, hsv, borderSize, foregroundStatic, foregroundColor, gradient, gradientLocation, gradientStep, gradientCycle, gradientDirection}) { 
+ 
+        console.log("Setting parameters, this.gradientCycle: ", gradientCycle);
 
         this.size = size;
         this.hsv = hsv;
@@ -36,7 +39,9 @@ class Test {
         this.gradient = gradient;
         this.gradientLocation = gradientLocation;
         this.gradientStep = gradientStep;
-        this.gradientArray = this.storeGradientSteps(100);
+        this.gradientArray = this.storeGradientSteps(this.gradientArraySize);
+        this.gradientCycle = gradientCycle;
+        this.gradientDirection = gradientDirection;
 
 
     }
@@ -68,7 +73,8 @@ class Test {
             foregroundColor: this.foregroundColor,
             gradient: this.gradient,
             gradientLocation: this.gradientLocation,
-            gradientStep: this.gradientStep
+            gradientStep: this.gradientStep,
+            gradientCyle: this.gradientCycle,
         }
     }
 
@@ -98,10 +104,23 @@ class Test {
             ctx.fillStyle = hsvObjectToRgbString(this.foregroundColor);
         }
         else{
-            const index = Math.floor(this.gradientLocation % 100);
+            const index = Math.floor(this.gradientLocation % this.gradientArraySize);
             const color = this.gradientArray[index];
-            this.gradientLocation += this.gradientStep;
             ctx.fillStyle = color;
+
+
+            console.log("this.gradientCycle: ", this.gradientCycle);
+
+            if (this.gradientCycle == "loop") { 
+                this.gradientLocation = (this.gradientLocation + this.gradientStep) % this.gradientArraySize;
+                console.log("Gradient Location: ", this.gradientLocation);
+            }
+            else if (this.gradientCycle == "bounce") { 
+
+            }
+            
+            
+            
         }
 
         

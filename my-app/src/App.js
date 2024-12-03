@@ -1,12 +1,13 @@
-
 import './App.css';
 import Menu from './Menu';
+import MainMenu from './MainMenu';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Menu />
+        {/* <p>Poob</p> */}
+        <MainMenu />
       </header>
     </div>
   );

@@ -4,62 +4,39 @@
 
 
 
+
 .App-header {
   background-color: #282c34;
-
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: black;
+  font-size: calc(2vmin);
+  color: white;
 }
 
-
-body { 
-    margin: 0;
-    padding: 0;
-    height: 100%;
+.App-link {
+  color: #61dafb;
 }
 
-button { 
-    font-size: 30px;
+.blur * { 
+    filter: blur(10px);
+    pointer-events: none;
 }
 
-
-.menuRow { 
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 10px;
-}
-
-.menuRow * { 
-    margin: 0px 20px;
-    font-size: 20px;
-}
-
-.menuRow p {
-    width: 100%;
-    text-align: left;
-}
-
-.gradientUI * { 
-    background-color: wheat;
-}
-
-
-.menuDiv {
+.menu { 
     position: absolute;
-    top: 50%;
+    top: 10%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
+    transform: translateX(-50%);
+    background: rgba(200, 200, 200, 1);
+    padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     z-index: 1000;
-    filter: none;
+
+    max-height: 90vh;
+    overflow-y: auto;
 }
