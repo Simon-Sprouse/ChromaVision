@@ -10,20 +10,38 @@ class Snake {
             isRunning: false,
             intervalId: null,
             location: {x: 200, y: 200},
-            foregroundColorPos: 0,
-            foregroundColorDir: 1,
+
+            Color: {
+                ForegroundColor: {
+                    pos: 0,
+                    dir: 1,
+                }
+            },
+            Shape: {
+                ElementSize: {
+                    pos: 0, 
+                    dir: 1,
+                }
+            }
+
         };
+
+
         
     }
 
 
     setParameters(parameters) { 
-        this.parameters = parameters;
+        
         if (this.status.isRunning) { 
             this.stop();
+            this.parameters = parameters;
             const speed = (100 - this.parameters.Movement.Speed);
             const interval = this.nonLinearScale(speed, 4, 3000);
             this.start(interval);
+        }
+        else { 
+            this.parameters = parameters;
         }
     }
 
@@ -33,6 +51,72 @@ class Snake {
         const scaledValue = outputMin * Math.pow((outputMax/outputMin), normalizedInput);
 
         return scaledValue;
+    }
+
+
+
+    handleDynamicRangeMove({ speed, shiftType, pos, dir }) { 
+
+        const shiftSpeed = parseInt(speed);
+        let colorStep = this.nonLinearScale(shiftSpeed, 0.001, 99);
+
+        let newPos = pos;
+        let newDir = dir;
+
+
+        if (shiftType == "loop") { 
+            newPos = (pos + colorStep) % 100;
+        }
+        else if (shiftType == "bounce") { 
+            
+            newPos = pos + colorStep * dir;
+            if (newPos > 100) { 
+                // needs to turn negative
+                newDir = -1;
+                newPos = pos + colorStep * newDir;
+            }
+            else if (newPos < 0) { 
+                // needs to turn postive
+                newDir = 1;
+                newPos = pos + colorStep * newDir;
+            }
+
+        }
+        else if (shiftType == "meander"){ 
+            newDir = Math.random() > 0.5 ? 1 : -1; // maybe increase, maybe decrease
+            newPos = (pos + newDir * colorStep) % 100;
+
+            if (newPos > 100) { 
+                newPos -= 100;
+            }
+            else if (newPos < 0) {
+                newPos += 100;
+            }
+
+
+        }
+        else if (shiftType == "random") { 
+            newPos = Math.random() * 100;
+        }
+
+
+        return { pos: newPos, dir: newDir };
+    }
+
+    callDynamicRangeMove(category, target) { 
+        if (!this.parameters[category][target].isStatic) { 
+
+
+            ({ pos: this.status[category][target].pos, dir: this.status[category][target].dir }  = this.handleDynamicRangeMove(
+                {
+                    speed: this.parameters[category][target].ShiftSpeed || 1,
+                    shiftType: this.parameters[category][target].ShiftType || "loop",
+                    pos: this.status[category][target].pos || 0,
+                    dir: this.status[category][target].dir || 1
+                }
+           ));
+    
+        }
     }
 
 
@@ -62,59 +146,27 @@ class Snake {
             this.status.location.y += dy;
         }
 
-
-        const shiftSpeed = parseInt(this.parameters.Color.ForegroundColor.ShiftSpeed);
-        let colorStep = this.nonLinearScale(shiftSpeed, 0.001, 99);
-
-        const shiftType = this.parameters.Color.ForegroundColor.ShiftType;
-
-        if (shiftType == "loop") { 
-            this.status.foregroundColorPos = (this.status.foregroundColorPos + colorStep) % 100;
-        }
-        else if (shiftType == "bounce") { 
-            colorStep *= this.status.foregroundColorDir; // *= -1 or 1 to change direction
-            const newPos = this.status.foregroundColorPos + colorStep;
-            if (newPos > 100) { 
-                // needs to turn negative
-                this.status.foregroundColorDir = -1;
-                this.status.foregroundColorPos += -1 * colorStep;
-            }
-            else if (newPos < 0) { 
-                // needs to turn postive
-                this.status.foregroundColorDir = 1;
-                this.status.foregroundColorPos += 1 * colorStep;
-            }
-            else {
-                // within bounds
-                this.status.foregroundColorPos = newPos;
-            }
-        }
-        else if (shiftType == "meander"){ 
-            const dir = Math.random() > 0.5 ? 1 : -1; // maybe increase, maybe decrease
-            let newPos = (this.status.foregroundColorPos + dir * colorStep) % 100;
-
-            if (newPos > 100) { 
-                newPos -= 100;
-            }
-            else if (newPos < 0) {
-                newPos += 100;
-            }
-
-
-
-            this.status.foregroundColorPos = newPos;
-
-        }
-        else if (shiftType == "random") { 
-            this.status.foregroundColorPos = Math.random() * 100;
-        }
+        // move the dynamic range elements
+        this.callDynamicRangeMove("Color", "ForegroundColor");
 
         
-
-        
-
-
     
+    }
+
+    getStaticOrDynamicColor(category, target) { 
+        
+        if (this.parameters[category][target].isStatic) { 
+            return hsvObjectToRgbString(this.parameters[category][target].Static);
+        }
+        else {
+            return getColorFromGradient(this.parameters[category][target].Dynamic, this.status[category][target].pos);
+        }
+
+    }
+
+    getStaticOrDynamicLinear() { 
+
+       
     }
 
 
@@ -122,22 +174,37 @@ class Snake {
 
 
 
-        let foregroundColor; 
+
+        let elementSize;
 
 
-        if (this.parameters.Color.ForegroundColor.isStatic) { 
-            foregroundColor = hsvObjectToRgbString(this.parameters.Color.ForegroundColor.Static);
+
+        let foregroundColor = this.getStaticOrDynamicColor("Color", "ForegroundColor");
+
+
+        if (this.parameters.Shape.ElementSize.isStatic) { 
+            elementSize = this.parameters.Shape.ElementSize.Static;
+            // console.log("Element size (static): ", elementSize);
         }
         else {
-            foregroundColor = getColorFromGradient(this.parameters.Color.ForegroundColor.Dynamic, this.status.foregroundColorPos);
-        }
+            // TODO, fix this
+            // console.log("All the keys parameters has: ", Object.keys(this.parameters.Shape.ElementSize));
+            const lowerBound = Math.min(...this.parameters.Shape.ElementSize.Dynamic);
+            const upperBound = Math.max(...this.parameters.Shape.ElementSize.Dynamic);
+        
 
+            const diff = upperBound - lowerBound;
+            const distance = diff * (this.status.elementSizePos / 100); 
+
+
+            elementSize = lowerBound + distance;
+        }
 
 
 
 
         const borderColor = hsvObjectToRgbString(this.parameters.Color.BorderColor.Static);
-        const elementSize = this.parameters.Shape.ElementSize.Static;
+    
         const borderSize = this.parameters.Shape.BorderSize.Static;
   
 
