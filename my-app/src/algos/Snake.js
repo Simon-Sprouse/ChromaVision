@@ -11,6 +11,7 @@ class Snake {
             intervalId: null,
             location: {x: 200, y: 200},
             foregroundColorPos: 0,
+            foregroundColorDir: 1,
         };
         
     }
@@ -63,13 +64,54 @@ class Snake {
 
 
         const shiftSpeed = parseInt(this.parameters.Color.ForegroundColor.ShiftSpeed);
-        const colorStep = this.nonLinearScale(shiftSpeed, 0.001, 99);
+        let colorStep = this.nonLinearScale(shiftSpeed, 0.001, 99);
 
-        console.log("Color Step: ", colorStep);
+        const shiftType = this.parameters.Color.ForegroundColor.ShiftType;
 
-        this.status.foregroundColorPos = (this.status.foregroundColorPos + colorStep) % 100;
+        if (shiftType == "loop") { 
+            this.status.foregroundColorPos = (this.status.foregroundColorPos + colorStep) % 100;
+        }
+        else if (shiftType == "bounce") { 
+            colorStep *= this.status.foregroundColorDir; // *= -1 or 1 to change direction
+            const newPos = this.status.foregroundColorPos + colorStep;
+            if (newPos > 100) { 
+                // needs to turn negative
+                this.status.foregroundColorDir = -1;
+                this.status.foregroundColorPos += -1 * colorStep;
+            }
+            else if (newPos < 0) { 
+                // needs to turn postive
+                this.status.foregroundColorDir = 1;
+                this.status.foregroundColorPos += 1 * colorStep;
+            }
+            else {
+                // within bounds
+                this.status.foregroundColorPos = newPos;
+            }
+        }
+        else if (shiftType == "meander"){ 
+            const dir = Math.random() > 0.5 ? 1 : -1; // maybe increase, maybe decrease
+            let newPos = (this.status.foregroundColorPos + dir * colorStep) % 100;
+
+            if (newPos > 100) { 
+                newPos -= 100;
+            }
+            else if (newPos < 0) {
+                newPos += 100;
+            }
 
 
+
+            this.status.foregroundColorPos = newPos;
+
+        }
+        else if (shiftType == "random") { 
+            this.status.foregroundColorPos = Math.random() * 100;
+        }
+
+        
+
+        
 
 
     
