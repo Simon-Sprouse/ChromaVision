@@ -1,4 +1,7 @@
 function SliderComponent( {value, onChange, min, max} ) { 
+
+
+
     return (
         <div>
             <input

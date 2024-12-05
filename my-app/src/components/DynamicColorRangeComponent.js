@@ -100,7 +100,7 @@ function DynamicColorRangeComponent( {value, onChange } ) {
                             type="range"
                             min={minSpeed}
                             max={maxSpeed}
-                            defaultValue={value.shiftSpeed}
+                            defaultValue={value.ShiftSpeed}
                             onChange={(event) => handleUpdate("ShiftSpeed", parseInt(event.target.value))}
                         />
                     </div>

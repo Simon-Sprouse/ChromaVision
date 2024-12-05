@@ -101,6 +101,17 @@ function MainMenu() {
             else if (event.key == "Enter") { 
                 runAlgo();
             }
+            else if (event.key == "r") { 
+                window.location.reload();
+            }
+            else if (event.key == "t") { 
+                for (let i = 0; i < 1000; i++) { 
+                    runAlgo();
+                }
+            }
+            else if (event.key == " ") { 
+                algoRef.current.run();
+            }
         }
         document.addEventListener("keydown", handleKeyDown);
         return () => { 
@@ -139,7 +150,6 @@ function MainMenu() {
     return (
         <div>
             <div id="blurTarget">
-                <p>Menu</p>
 
                 <canvas id="Canvas" ref={canvasRef}></canvas>
             </div>

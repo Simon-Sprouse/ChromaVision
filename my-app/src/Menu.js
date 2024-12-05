@@ -66,7 +66,7 @@ function Menu({ menuWindow, parameters, setParameters, schema }) {
             }
             else if (visibleSchema["component"]) { 
                 result[key] = parameters[key];
-                console.log("result[key]: ", result[key]);
+               
                 
             }
             
