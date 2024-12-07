@@ -1,4 +1,5 @@
 import { hsvObjectToRgbString, getColorFromGradient } from "../colorFunctions/colorFunctions";
+import { getSquareCoordinates } from "../geometry/geometry";
 
 class Snake { 
 
@@ -7,21 +8,36 @@ class Snake {
 
         this.parameters = parameters;
         this.status = {
-            isRunning: false,
-            intervalId: null,
-            location: {x: 200, y: 200},
+
 
             Color: {
                 ForegroundColor: {
                     pos: 0,
                     dir: 1,
+                },
+                BorderColor: {
+                    pos: 0,
+                    dir: 1
                 }
             },
             Shape: {
+                ElementTilt: {
+                    pos: 0, 
+                    dir: 1
+                },
                 ElementSize: {
                     pos: 0, 
                     dir: 1,
-                }
+                },
+                BorderSize: {
+                    pos: 0, 
+                    dir: 1
+                },
+            },
+            Movement: {
+                isRunning: false,
+                intervalId: null,
+                location: {x: 200, y: 200},
             }
 
         };
@@ -33,7 +49,7 @@ class Snake {
 
     setParameters(parameters) { 
         
-        if (this.status.isRunning) { 
+        if (this.status.Movement.isRunning) { 
             this.stop();
             this.parameters = parameters;
             const speed = (100 - this.parameters.Movement.Speed);
@@ -119,35 +135,61 @@ class Snake {
         }
     }
 
+    moveLocation() { 
+
+
+        const leftBound = 0;
+        const rightBound = this.canvasRef.current.width;
+        const bottomBound = 0;
+        const topBound = this.canvasRef.current.height;
+
+        const pattern = this.parameters.Movement.Pattern;
+
+        if (pattern == "randomWalk") { 
+
+            const stepSize = this.parameters.Movement.StepSize;
+            
+            const angle = Math.random() * 2 * Math.PI;
+
+
+            const dx = stepSize * Math.cos(angle);
+            const dy = stepSize * Math.sin(angle);
+
+
+            if (dx + this.status.Movement.location.x > leftBound && dx + this.status.Movement.location.x < rightBound) { 
+                this.status.Movement.location.x += dx;
+            }
+            if (dy + this.status.Movement.location.y > bottomBound && dy + this.status.Movement.location.y < topBound) { 
+                this.status.Movement.location.y += dy;
+            }
+
+        }
+        else if (pattern == "random") { 
+
+            const xDiff = rightBound - leftBound;
+            const yDiff = topBound - bottomBound;
+
+            const newX = Math.random() * xDiff;
+            const newY = Math.random() * yDiff;
+
+            this.status.Movement.location.x = newX;
+            this.status.Movement.location.y = newY;
+
+        }
+
+        
+    }
+
 
     move() { 
 
-        const stepSize = this.parameters.Movement.StepSize;
-        const elementSize = this.parameters.Shape.ElementSize.Static;
-        const borderSize = this.parameters.Shape.BorderSize.Static;
+        this.moveLocation();
 
-
-        const angle = Math.random() * 2 * Math.PI;
-
-
-        const dx = stepSize * Math.cos(angle);
-        const dy = stepSize * Math.sin(angle);
-
-        const leftBound = 0;
-        const rightBound = this.canvasRef.current.width - elementSize - borderSize;
-        const bottomBound = 0;
-        const topBound = this.canvasRef.current.height - elementSize - borderSize;
-        
-
-        if (dx + this.status.location.x > leftBound && dx + this.status.location.x < rightBound) { 
-            this.status.location.x += dx;
-        }
-        if (dy + this.status.location.y > bottomBound && dy + this.status.location.y < topBound) { 
-            this.status.location.y += dy;
-        }
-
-        // move the dynamic range elements
         this.callDynamicRangeMove("Color", "ForegroundColor");
+        this.callDynamicRangeMove("Color", "BorderColor");
+        this.callDynamicRangeMove("Shape", "ElementTilt");
+        this.callDynamicRangeMove("Shape", "ElementSize");
+        this.callDynamicRangeMove("Shape", "BorderSize");
 
         
     
@@ -164,91 +206,109 @@ class Snake {
 
     }
 
-    getStaticOrDynamicLinear() { 
+    getStaticOrDynamicLinear(category, target) { 
 
+        if (this.parameters[category][target].isStatic) { 
+            return this.parameters[category][target].Static;
+        }
+        else {
+            
+            const lowerBound = Math.min(...this.parameters[category][target].Dynamic);
+            const upperBound = Math.max(...this.parameters[category][target].Dynamic);
+        
+
+            const diff = upperBound - lowerBound;       
+            const distance = diff * (this.status[category][target].pos / 100); 
+
+
+            return lowerBound + distance;
+
+        }
        
+    }
+
+
+
+   
+
+    drawPolygon(coordinates, borderSize, borderColor, foregroundColor) { 
+
+
+        const canvas = this.canvasRef.current;
+        const ctx = canvas.getContext("2d");
+
+        ctx.beginPath();
+        ctx.moveTo(coordinates[0].x, coordinates[0].y);
+
+        for (let i = 0; i < coordinates.length; i++) { 
+            ctx.lineTo(coordinates[i].x, coordinates[i].y);
+        }
+
+        ctx.closePath();
+        ctx.fillStyle = foregroundColor;
+        ctx.fill();
+
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = borderSize;
+        ctx.stroke();
+
+
     }
 
 
     draw() { 
 
-
-
-
-        let elementSize;
-
-
-
-        let foregroundColor = this.getStaticOrDynamicColor("Color", "ForegroundColor");
-
-
-        if (this.parameters.Shape.ElementSize.isStatic) { 
-            elementSize = this.parameters.Shape.ElementSize.Static;
-            // console.log("Element size (static): ", elementSize);
-        }
-        else {
-            // TODO, fix this
-            // console.log("All the keys parameters has: ", Object.keys(this.parameters.Shape.ElementSize));
-            const lowerBound = Math.min(...this.parameters.Shape.ElementSize.Dynamic);
-            const upperBound = Math.max(...this.parameters.Shape.ElementSize.Dynamic);
         
+        const foregroundColor = this.getStaticOrDynamicColor("Color", "ForegroundColor");
+        const borderColor = this.getStaticOrDynamicColor("Color", "BorderColor");
 
-            const diff = upperBound - lowerBound;
-            const distance = diff * (this.status.elementSizePos / 100); 
+        const elementTilt = this.getStaticOrDynamicLinear("Shape", "ElementTilt");
+        const elementSize = this.getStaticOrDynamicLinear("Shape", "ElementSize");
+        const borderSize = this.getStaticOrDynamicLinear("Shape", "BorderSize");
+
+        const location = this.status.Movement.location;
 
 
-            elementSize = lowerBound + distance;
+
+        const shape = this.parameters.Shape.ElementShape;
+
+        if (shape == "square") { 
+            const coordinates = getSquareCoordinates(location.x, location.y, elementSize, elementTilt);
+            this.drawPolygon(coordinates, borderSize, borderColor, foregroundColor);
+        }
+        else if (shape == "circle") { 
+
+        }
+        else if (shape == "triangle") { 
+
         }
 
-
-
-
-        const borderColor = hsvObjectToRgbString(this.parameters.Color.BorderColor.Static);
-    
-        const borderSize = this.parameters.Shape.BorderSize.Static;
-  
-
-        const location = this.status.location;
-
-
         
 
-        const canvas = this.canvasRef.current;
-        const ctx = canvas.getContext("2d");
-
-
-        // console.log("borderColor: ", borderColor);
-        // console.log("location: ", location);
-        // console.log("elementSize: ", elementSize);
-        // console.log("borderSize: ", borderSize);
-
         
-        ctx.fillStyle = borderColor;
-        ctx.fillRect(location.x, location.y, elementSize  + 2*borderSize, elementSize + 2*borderSize);
-
-        ctx.fillStyle = foregroundColor;
-        ctx.fillRect(location.x + borderSize, location.y + borderSize, elementSize, elementSize);
-
-
-        // console.log("Draw should occur");
+     
 
     }
 
+
+
+
+
     start(interval) { 
-        this.intervalId = setInterval(() => { 
+        this.status.Movement.intervalId = setInterval(() => { 
             this.move();
             this.draw();
         }, interval);
-        this.status.isRunning = true;
+        this.status.Movement.isRunning = true;
     }
 
     stop() { 
-        clearInterval(this.intervalId);
-        this.status.isRunning = false;
+        clearInterval(this.status.Movement.intervalId);
+        this.status.Movement.isRunning = false;
     }
 
     run() { 
-        if (this.status.isRunning) { 
+        if (this.status.Movement.isRunning) { 
             this.stop();
         }
         else { 

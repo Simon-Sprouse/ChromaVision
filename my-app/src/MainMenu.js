@@ -101,7 +101,7 @@ function MainMenu() {
             else if (event.key == "Enter") { 
                 runAlgo();
             }
-            else if (event.key == "r") { 
+            else if (event.key == "q") { 
                 window.location.reload();
             }
             else if (event.key == "t") { 
